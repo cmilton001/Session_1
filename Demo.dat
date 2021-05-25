@@ -1,0 +1,383 @@
+/* NUMERIC FUNCTION */
+select abs(-10);
+select mod(10,3);
+select pow(2,3);
+select round(3.14593,2);
+select truncate(3.14593,2);
+
+select pi();
+select sin(pi()/2);
+select cos(pi());
+select tan(pi()/4);
+
+select sqrt(144);
+select exp(2);
+select exp(1);
+select ln(2.718281828459045);
+select log(10,100);
+select ceil(3.14);
+select sign(0);
+
+/* REGULAR EXPRESSION */
+select regexp_like('dog cat bird','cat');
+select regexp_like('dog hello bird','cat');
+
+select regexp_instr('dog cat bird','cat');
+
+select regexp_substr('12dog cat bird','[a-z]');
+select regexp_substr('123213 cat bird','[a-z]+');
+select regexp_substr('sdf sdf123sss213 cat bird','[0-9]');
+select regexp_substr('1234545dog cat bird','[0-9]{3}');
+select regexp_substr('1234545dog cat bird','[a-z]{4}');
+select regexp_substr('12dog cat bird','([0-9]{3})|([a-z]{4})');
+
+select regexp_replace('dog cat bird','cat','hello');
+select regexp_replace('dog cat bird','[a-z]','hello');
+select regexp_replace('dog cat bird','[a-z]+','hello');
+
+select 'Micheal!' REGEXP '.';
+select 'Micheal!' REGEXP '[a-z]';
+select 'Mich2eal!' REGEXP '[0-9]';
+
+select lower("HELLO");
+select upper("hello");
+
+select upper(lower("HELLO"));
+
+select concat("hello ","world");
+select length("hello");
+select Lpad("hello",7,".");
+select rpad("hello",7,".");
+select "    hello";
+select ltrim("    hello");
+select rtrim("hello    ");
+select replace("hello world","world","sql") as replace_str;
+select substr("hello world",4,5);
+
+/* NUMERIC/STRING conversion */
+select 1 + '1';
+select cast('123' as unsigned) as string_to_number;
+
+select concat(2,'text');
+select cast(123 as char) as a;
+
+/* DATE/TIME */
+select curtime();
+select curdate();
+select current_timestamp();
+select now();
+select sysdate();
+
+select adddate("2021-05-19",Interval 10 day);
+select adddate("2021-05-19",Interval 1 year);
+select adddate("2021-05-19",Interval 1 month);
+select adddate(curdate(),Interval 10 day);
+
+select addtime("2021-05-19 23:33:05",1);
+select addtime("23:33:05",1);
+select addtime("23:33:05","1:00");
+select addtime("23:33:05","00:01:00");
+
+select date("2021-05-19 23:33:05");
+select day("2021-05-19 23:33:05");
+select day("2021-05-19");
+select time("2021-05-19 23:33:05");
+select second("2021-05-19 23:33:05");
+select second("23:33:05");
+
+/* RUN Function on table */
+/* drop database demo; */
+create database if not exists demo;
+use demo;
+create table T1(
+	id int primary key auto_increment,
+    c1 float(7,4),
+    c2 int,
+    c3 varchar(200)
+);
+
+select rand()*10;
+select rand()*(5-1)+1; # max 5, min 1
+select rand()*(5-(-5))+(-5); # max 5, min -1
+select md5(1);
+select md5(rand());
+
+select regexp_replace(md5(rand()*2),'[0-9]','');
+select rpad(regexp_replace(md5(rand()*2),'[0-9]',''),5,'');
+
+insert into T1(c1,c2,c3) values(rand()*(10+10)-10,rand()*10,rpad(regexp_replace(md5(rand()*2),'[0-9]',''),5,''));
+insert into T1(c1,c2,c3) values(rand()*(10+10)-10,rand()*10,rpad(regexp_replace(md5(rand()*2),'[0-9]',''),5,''));
+
+
+select * from t1;
+
+select abs(c1) from t1;
+select pow(c2,2) from t1;
+
+/* AGGREGATE functions*/
+select avg(c1) from t1;
+select avg(c2) from t1;
+select avg(id) from t1;
+
+select max(id) from t1;
+select min(id) from t1;
+select max(c1) from t1;
+select min(c1) from t1;
+
+select max(c1) as maxc1,
+		min(c1) as minc1 
+from t1;
+
+select max(c1),max(c2) from t1;
+
+select count(*) from t1;
+select sum(c1) from t1;
+select sum(id) from t1;
+
+select std(c1) from t1;
+select stddev_pop(c1) from t1;
+select stddev_samp(c1) from t1;
+select variance(c1) from t1;
+select var_pop(c1) from t1;
+select var_samp(c1) from t1;
+
+#1: 0000 .... 0001
+#2: 0000 .... 0010
+select bit_and(id) from t1 where id=1 or id=2;
+select bit_or(id) from t1 where id=1 or id=2;
+select bit_xor(id) from t1 where id=1 or id=2;
+
+select group_concat(1,"abc",now());
+select group_concat(c3) from t1;
+
+select greatest(max(c1),max(c2),max(id)) from t1;
+/* join together and using max */
+
+/**/
+create table T2(
+	id int primary key auto_increment,
+    c1 float(7,4),
+    c2 int,
+    c3 varchar(200)
+);
+
+insert into T2(c1,c2,c3) values(-1*Pi(),DAY(Now()),'A');
+insert into T2(c1,c2,c3) values(exp(1),year(Now()),'B');
+insert into T2(c1,c2,c3) values(pi(),month(Now()),'B');
+insert into T2(c1,c2,c3) values(ln(10),hour(Now()),'C');
+insert into T2(c1,c2,c3) values(-1*exp(1),minute(Now()),'C');
+
+/*GROUP BY*/
+#1999
+select * from t2 group by c3; # not what we want
+select count(*) from t2 group by c3;
+select c3,count(*) from t2 group by c3;
+select c3,count(c3) from t2 group by c3;
+select c1,count(*) from t2 group by c3;  # not what we want
+
+select avg(c1),sum(c2),c3 from t2 group by c3;
+
+/* HAVING CLAUSE */
+select count(*) from t2 group by c3 having count(*) > 1;
+select count(*) from t2 group by c3 having count(*) < 2;
+select count(*) as c4 from t2 group by c3 having c4 < 2;
+
+select * from t2 having c1 > 0;
+select * from t2 having c1 < 0;
+select * from t2 where c1 > 0;
+select * from t2 where c1 < 0;
+
+/* SUB QUERIES */
+select * from t2;
+select * from t2 where id = 1;
+select * from t2 where id >= (1);
+select * from t2 where id > (1);
+
+select * from t2 where id = (select avg(id) from t2);
+select * 
+from t2 
+where id > 
+		(select avg(id) 
+        from t2);
+        
+
+/* ERROR */
+select * from t2 where id 
+= (select id from t1); #Error mismatch between subqueries result and operations
+
+
+/* Scalar scalar =,>,=>,=<...*/
+select * from t2 where id 
+= (select id from t1 where id=2);
+
+/* multiple columns */
+select * from t2 where (id,c1) = (select id,c1 from t2 where id = 1); 
+
+/* multiple columns,rows */
+select * from t2 where (id,c1) in (select id,c1 from t2 where id > 1); 
+select * from t1 where id in (1,2);
+select * from t1 where id = 1 or id = 2;
+
+# ALL,ANY,SOME
+/*
+name 	age 	salary
+------------------------
+A		25		2000
+B		33		4000
+C		23		8500
+D		27		6000
+E		24		4150
+*/
+create table customers (
+	name varchar(100),
+    age int,
+    salary double
+);
+
+insert into customers values('A',25,2000);
+insert into customers values('B',33,4000);
+insert into customers values('C',23,8500);
+insert into customers values('D',27,6000);
+insert into customers values('E',24,4150);
+
+#select * from customers where age > all (23,27);
+select * from customers where age > all (select age from customers where salary > 5000);
+
+select * from customers where age > any (select age from customers where salary > 5000);
+select * from customers where age > some (select age from customers where salary > 5000);
+
+/* EXIST */
+select * from customers where exists (select age from customers where salary > 5000);
+select * from customers where exists (select age from customers where salary < 0);
+
+select * from customers where not exists (select age from customers where salary < 0);
+select * from customers where not exists (select age from customers where salary > 5000);
+
+
+/* subquery in select clause */
+select (select age from customers where name = 'A');
+select age,salary,(select age from customers where name = C.name)  from customers C;
+
+/* subquery in from clause */
+select temp.name,temp.age
+from (select * from customers where age > 25) as temp
+where salary >= 4000;
+
+/* subquery in insert */
+# cannot subquery from the same table
+insert into customers values('Z',
+							(select c1 from t1 where id = 1),
+							(select c2 from t1 where id = 1));
+                            
+update customers
+set age = (select c1 from t1 where id = 1)
+where salary = 6000;
+
+/* Variable */
+set @age = 100;
+select @age;
+
+select avg(age)
+into @total
+from customers;
+
+select @total;
+
+
+/* STORE PRECEDURE */
+DELIMITER //
+CREATE PROCEDURE show_customer()
+BEGIN
+	select * from customers;
+END //
+DELIMITER ;
+
+call show_customer();
+
+/*IN PARAMATER*/
+DELIMITER //
+CREATE PROCEDURE show_customer_age(IN age int)
+BEGIN
+	select * from customers where customers.age = age;
+END //
+DELIMITER ;
+
+call show_customer_age(23);
+call show_customer_age(33);
+
+/* OUT */
+DELIMITER //
+CREATE PROCEDURE count_all_customers(OUT total int)
+BEGIN
+	select count(*)
+    into total
+    from customers;
+END //
+DELIMITER ;
+
+call count_all_customers(@total);
+select @total;
+
+/* IN OUT varible */
+DELIMITER //
+CREATE PROCEDURE counter_procedure(INOUT counter int)
+BEGIN
+	set counter = counter + 1;
+END //
+DELIMITER ;
+
+set @current_counter = 1;
+call counter_procedure(@current_counter);
+call counter_procedure(@current_counter);
+
+select @current_counter;
+select @age;
+call counter_procedure(@age);
+
+/*SQL SYNTAX */
+DELIMITER //
+CREATE PROCEDURE hello_cursor_sql()
+BEGIN
+	Declare result varchar(100) default "";
+    Declare single_result varchar(10) default "";
+    Declare user_data cursor for select name from customers;
+    
+    OPEN user_data;
+	WHILE(@@FETCH_STATUS=0)
+		DO
+			FETCH user_data INTO single_result;
+            SET result = CONCAT(result,",",single_result);
+        END
+    CLOSE user_data;
+    SELECT result;
+END //
+DELIMITER ;
+
+/*MYSQL SYNTAX */
+DELIMITER //
+CREATE PROCEDURE hello_cursor_mysql()
+BEGIN
+	Declare result varchar(100) default "";
+    Declare single_result varchar(10) default "";
+    
+    Declare FINISHED int default 0;
+    Declare user_data cursor for select name from customers limit 6;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET FINISHED =1;
+    
+    OPEN user_data;
+		LoopName: LOOP
+			FETCH user_data INTO single_result;
+            
+            IF FINISHED = 1 
+            THEN LEAVE LoopName; 
+            END IF;
+            SET result = CONCAT(result,",",single_result);
+            
+		END LOOP LoopName;
+    CLOSE user_data;
+    SELECT result;
+END //
+DELIMITER ;
+
+
+call hello_cursor_mysql();
